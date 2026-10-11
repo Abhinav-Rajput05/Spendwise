@@ -1,0 +1,10 @@
+import { useEffect, useState } from 'react';
+import { today } from '../utils/format';
+export default function ExpenseForm({ initial, categories, onSubmit, onCancel, saving }) {
+  const [form, setForm] = useState({ amount: '', categoryId: '', description: '', date: today() });
+  const [error, setError] = useState('');
+  useEffect(() => { if (initial) setForm({ amount: initial.amount ?? '', categoryId: initial.categoryId ?? '', description: initial.description ?? '', date: String(initial.date || today()).slice(0, 10) }); else setForm({ amount: '', categoryId: categories[0]?.id || '', description: '', date: today() }); }, [initial, categories]);
+  const change = (e) => setForm((old) => ({ ...old, [e.target.name]: e.target.value }));
+  const submit = async (e) => { e.preventDefault(); setError(''); if (!(Number(form.amount) > 0)) return setError('Enter an amount greater than zero.'); if (!form.categoryId) return setError('Create or select a category first.'); try { await onSubmit({ amount: Number(form.amount), categoryId: form.categoryId, description: form.description.trim(), date: form.date }); } catch (err) { setError(err); } };
+  return <form className="form-stack" onSubmit={submit}><label>Amount (₹)<input name="amount" type="number" min="0.01" step="0.01" value={form.amount} onChange={change} placeholder="0.00" required/></label><label>Category<select name="categoryId" value={form.categoryId} onChange={change} required><option value="">Select category</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>Description<input name="description" value={form.description} onChange={change} maxLength="250" placeholder="What did you spend on?"/></label><label>Date<input name="date" type="date" value={form.date} onChange={change} required/></label>{error && <p className="form-error">{error}</p>}<div className="form-actions"><button type="button" className="button secondary" onClick={onCancel}>Cancel</button><button className="button primary" disabled={saving}>{saving ? 'Saving…' : initial ? 'Save changes' : 'Add expense'}</button></div></form>;
+}

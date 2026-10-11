@@ -1,0 +1,2 @@
+import { CheckCircle2, CircleAlert, X } from 'lucide-react';
+export default function Notice({ notice, onClose }) { if (!notice) return null; const Icon = notice.type === 'success' ? CheckCircle2 : CircleAlert; return <div className={`notice ${notice.type || 'error'}`} role="status"><Icon size={18}/><span>{notice.message}</span><button className="icon-button" onClick={onClose} aria-label="Dismiss"><X size={16}/></button></div>; }
